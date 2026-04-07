@@ -101,10 +101,10 @@ function StripeButton({
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Erreur lors de la création de la session.");
+        const text = await res.text();
+        console.error("Réponse serveur brute:", text);
+        throw new Error("Erreur serveur Stripe");
       }
-
       const data = await res.json();
       if (data.url) {
         window.location.assign(data.url);
