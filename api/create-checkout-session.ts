@@ -40,11 +40,12 @@ export default async function handler(req, res) {
     return res.status(200).json({ url: session.url });
 
   } catch (error) {
-    console.error("ERREUR STRIPE :", error);
+  console.error("🔥 ERREUR STRIPE COMPLETE :", error);
 
-    return res.status(500).json({
-      error: "Erreur serveur Stripe",
-      details: error.message,
+  return res.status(500).json({
+    error: "Erreur Stripe",
+    details: error.message,
+    type: error.type,
     });
   }
 }
