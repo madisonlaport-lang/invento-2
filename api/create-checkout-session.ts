@@ -3,13 +3,26 @@ import Stripe from "stripe";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export default async function handler(req, res) {
+  // sécurité : seulement POST
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
   try {
-    const { plan } = req.body;
+    const { plan } = req.body || {};
+
+    if (!plan) {
+      return res.status(400).json({ error: "Plan manquant" });
+    }
 
     const priceId =
       plan === "pro"
         ? process.env.STRIPE_PRO_PRICE_ID
         : process.env.STRIPE_PRO_PLUS_PRICE_ID;
+
+    if (!priceId) {
+      return res.status(500).json({ error: "Price ID manquant" });
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
@@ -25,11 +38,13 @@ export default async function handler(req, res) {
     });
 
     return res.status(200).json({ url: session.url });
+
   } catch (error) {
-    console.error("Stripe error:", error);
+    console.error("ERREUR STRIPE :", error);
 
     return res.status(500).json({
-      error: "Stripe session creation failed",
+      error: "Erreur serveur Stripe",
+      details: error.message,
     });
   }
 }
