@@ -73,6 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      console.log("COMPTE FIREBASE CRÉÉ :", result.user.email);
       return { success: true };
     } catch (error: any) {
       return {
