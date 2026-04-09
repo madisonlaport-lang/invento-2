@@ -1,125 +1,149 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signOut,
+  onAuthStateChanged,
+  updateProfile,
+} from 'firebase/auth';
 import { User, PlanType } from '@/types';
-
-interface StoredUser extends User {
-  password: string;
-}
+import { auth } from '@/lib/firebase';
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
+  logout: () => Promise<void>;
   forgotPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
   updatePlan: (plan: PlanType) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const USERS_KEY = 'inventopro_users';
-const SESSION_KEY = 'inventopro_session';
+// On garde juste le plan en local temporairement
+const PLAN_KEY_PREFIX = 'inventopro_plan_';
 
-function getStoredUsers(): StoredUser[] {
+function getStoredPlan(uid: string): PlanType {
   try {
-    return JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+    return (localStorage.getItem(`${PLAN_KEY_PREFIX}${uid}`) as PlanType) || 'starter';
   } catch {
-    return [];
+    return 'starter';
   }
 }
 
-// Lecture synchrone de la session au démarrage — évite tout flash/blanc
-function getInitialUser(): User | null {
-  try {
-    const session = localStorage.getItem(SESSION_KEY);
-    return session ? JSON.parse(session) : null;
-  } catch {
-    localStorage.removeItem(SESSION_KEY);
-    return null;
-  }
+function setStoredPlan(uid: string, plan: PlanType) {
+  localStorage.setItem(`${PLAN_KEY_PREFIX}${uid}`, plan);
+}
+
+function mapFirebaseUser(firebaseUser: any): User {
+  const plan = getStoredPlan(firebaseUser.uid);
+
+  return {
+    id: firebaseUser.uid,
+    email: firebaseUser.email || '',
+    name: firebaseUser.displayName || '',
+    createdAt: firebaseUser.metadata?.creationTime || new Date().toISOString(),
+    plan,
+    subscription_status: plan === 'starter' ? 'inactive' : 'active',
+  };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // Initialisation synchrone : pas de isLoading=true inutile
-  const [user, setUser] = useState<User | null>(getInitialUser);
-  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Vérification de cohérence au montage (session corrompue, etc.)
-    try {
-      const session = localStorage.getItem(SESSION_KEY);
-      const parsed = session ? JSON.parse(session) : null;
-      if (JSON.stringify(parsed) !== JSON.stringify(user)) {
-        setUser(parsed);
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(mapFirebaseUser(firebaseUser));
+      } else {
+        setUser(null);
       }
-    } catch {
-      localStorage.removeItem(SESSION_KEY);
-      setUser(null);
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    const users = getStoredUsers();
-    const found = users.find((u) => u.email === email && u.password === password);
-    if (!found) {
-      return { success: false, error: 'Email ou mot de passe incorrect.' };
+  const login = async (
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      return { success: true };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message || 'Email ou mot de passe incorrect.',
+      };
     }
-    const { password: _pwd, ...safeUser } = found;
-    setUser(safeUser);
-    localStorage.setItem(SESSION_KEY, JSON.stringify(safeUser));
-    return { success: true };
   };
 
-  const register = async (email: string, password: string, name: string): Promise<{ success: boolean; error?: string }> => {
-    const users = getStoredUsers();
-    if (users.find((u) => u.email === email)) {
-      return { success: false, error: 'Cet email est déjà utilisé.' };
+  const register = async (
+    email: string,
+    password: string,
+    name: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+
+      if (auth.currentUser) {
+        await updateProfile(auth.currentUser, {
+          displayName: name,
+        });
+      }
+
+      setStoredPlan(result.user.uid, 'starter');
+
+      return { success: true };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message || "Erreur lors de l'inscription.",
+      };
     }
-    const newUser: StoredUser = {
-      id: crypto.randomUUID(),
-      email,
-      password,
-      name,
-      createdAt: new Date().toISOString(),
-      plan: 'starter',
-    };
-    users.push(newUser);
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    const { password: _pwd, ...safeUser } = newUser;
-    setUser(safeUser);
-    localStorage.setItem(SESSION_KEY, JSON.stringify(safeUser));
-    return { success: true };
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await signOut(auth);
     setUser(null);
-    localStorage.removeItem(SESSION_KEY);
   };
 
-  const forgotPassword = async (email: string): Promise<{ success: boolean; error?: string }> => {
-    const users = getStoredUsers();
-    if (!users.find((u) => u.email === email)) {
-      return { success: false, error: 'Aucun compte associé à cet email.' };
+  const forgotPassword = async (
+    email: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      return { success: true };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message || "Impossible d'envoyer l'email.",
+      };
     }
-    return { success: true };
   };
 
   const updatePlan = (plan: PlanType) => {
-    if (!user) return;
-    const updatedUser: User = { ...user, plan, subscription_status: 'active' };
+    if (!auth.currentUser) return;
+
+    setStoredPlan(auth.currentUser.uid, plan);
+
+    const updatedUser: User = {
+      ...mapFirebaseUser(auth.currentUser),
+      plan,
+      subscription_status: 'active',
+    };
+
     setUser(updatedUser);
-    localStorage.setItem(SESSION_KEY, JSON.stringify(updatedUser));
-    // Mettre à jour aussi dans la liste des utilisateurs
-    const users = getStoredUsers();
-    const updated = users.map((u) =>
-      u.email === user.email ? { ...u, plan, subscription_status: 'active' as const } : u
-    );
-    localStorage.setItem(USERS_KEY, JSON.stringify(updated));
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout, forgotPassword, updatePlan }}>
+    <AuthContext.Provider
+      value={{ user, isLoading, login, register, logout, forgotPassword, updatePlan }}
+    >
       {children}
     </AuthContext.Provider>
   );
