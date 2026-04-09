@@ -113,18 +113,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const forgotPassword = async (
-    email: string
-  ): Promise<{ success: boolean; error?: string }> => {
-    try {
-      await sendPasswordResetEmail(auth, email);
-      return { success: true };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.message || "Impossible d'envoyer l'email.",
-      };
-    }
-  };
+  email: string
+): Promise<{ success: boolean; error?: string }> => {
+  try {
+    await sendPasswordResetEmail(auth, email);
+    return { success: true };
+  } catch (error: any) {
+    console.error("ERREUR FORGOT PASSWORD :", error);
+    return {
+      success: false,
+      error: error?.message || "Impossible d'envoyer l'email.",
+    };
+  }
+};
 
   const updatePlan = (plan: PlanType) => {
     if (!auth.currentUser) return;
