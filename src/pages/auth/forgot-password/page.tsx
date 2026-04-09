@@ -17,12 +17,15 @@ export default function ForgotPasswordPage() {
       return;
     }
     setLoading(true);
-    const result = await forgotPassword(email);
+   const result = await forgotPassword(email);
     setLoading(false);
+    
     if (result.success) {
       setSuccess(true);
     } else {
-      setError(result.error || 'Une erreur est survenue.');
+      const message = result.error || "Erreur Firebase inconnue";
+      setError(message);
+      alert("Erreur Firebase : " + message);
     }
   };
 
