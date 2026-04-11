@@ -11,22 +11,21 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError('');
-    if (!email || !password) {
-      setError('Veuillez remplir tous les champs.');
-      return;
-    }
-    setLoading(true);
-    const result = await login(email, password);
-    setLoading(false);
-    if (result.success) {
-      navigate('/dashboard');
-    } else {
-      setError(result.error || 'Erreur de connexion.');
-    }
-  };
+ const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault();
+  setError('');
+  setLoading(true);
+
+  const result = await login(email, password);
+
+  setLoading(false);
+
+  if (result.success) {
+    navigate('/dashboard');
+  } else {
+    setError(result.error || 'Une erreur est survenue.');
+  }
+};
 
   return (
     <div className="min-h-screen flex">
