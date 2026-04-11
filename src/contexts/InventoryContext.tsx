@@ -5,7 +5,7 @@ import { useAuth } from './AuthContext';
 interface InventoryContextType {
   properties: Property[];
   isLoading: boolean;
-  createProperty: (data: { name: string; address: string; type: PropertyType }) => Property;
+  createProperty: (data: { name: string; address: string; ownerName: string; type: PropertyType }) => Property;
   updateProperty: (id: string, data: Partial<Property>) => void;
   deleteProperty: (id: string) => void;
   getProperty: (id: string) => Property | undefined;
@@ -72,7 +72,7 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
     setPropertiesState([...updated]);
   };
 
-  const createProperty = (data: { name: string; address: string; type: PropertyType }): Property => {
+  const createProperty = (data: { name: string; address: string; ownerName: string; type: PropertyType }): Property => {
     const newProp: Property = {
       id: crypto.randomUUID(),
       userId: user!.id,
