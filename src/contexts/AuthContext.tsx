@@ -67,21 +67,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  const login = async (
-    email: string,
-    password: string
-  ): Promise<{ success: boolean; error?: string }> => {
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      console.log("COMPTE FIREBASE CRÉÉ :", result.user.email);
-      return { success: true };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.message || 'Email ou mot de passe incorrect.',
-      };
-    }
-  };
+const login = async (
+  email: string,
+  password: string
+): Promise<{ success: boolean; error?: string }> => {
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    return { success: true };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || 'Email ou mot de passe incorrect.',
+    };
+  }
+};
 
   const register = async (
     email: string,
