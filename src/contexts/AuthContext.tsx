@@ -112,14 +112,15 @@ const login = async (
     setUser(null);
   };
 
-  const forgotPassword = async (
+ const forgotPassword = async (
   email: string
 ): Promise<{ success: boolean; error?: string }> => {
   try {
-   await sendPasswordResetEmail(auth, email, {
-     url: "https://kenwa-conciergerie.com/login",
-     handleCodeInApp: false,
-   });
+    await sendPasswordResetEmail(auth, email, {
+      url: "https://kenwa-conciergerie.com/login",
+      handleCodeInApp: false,
+    });
+
     return { success: true };
   } catch (error: any) {
     console.error("ERREUR FORGOT PASSWORD :", error);
