@@ -8,9 +8,7 @@ export async function fetchInventoriesByUser(userId: string): Promise<Property[]
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 
   return (data || []).map((row) => ({
     id: row.id,
@@ -26,8 +24,8 @@ export async function fetchInventoriesByUser(userId: string): Promise<Property[]
   }));
 }
 
-export async function insertInventory(property: Property): Promise<void> {
-  const { error } = await supabase.from("inventories").insert({
+export async function upsertInventory(property: Property): Promise<void> {
+  const { error } = await supabase.from("inventories").upsert({
     id: property.id,
     user_id: property.userId,
     name: property.name,
@@ -40,9 +38,10 @@ export async function insertInventory(property: Property): Promise<void> {
     rooms: property.rooms,
   });
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 }
 
-export async function updateInventoryRecord(property:
+export async function deleteInventoryById(id: string): Promise<void> {
+  const { error } = await supabase.from("inventories").delete().eq("id", id);
+  if (error) throw error;
+}
