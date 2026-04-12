@@ -1,3 +1,4 @@
+import { fetchInventoriesByUser, upsertInventory, deleteInventoryById } from '@/lib/inventoryDb';
 import { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { Property, Room, Item, Photo, PropertyType } from '@/types';
 import { useAuth } from './AuthContext';
