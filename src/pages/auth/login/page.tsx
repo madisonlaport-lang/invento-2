@@ -83,6 +83,7 @@ export default function LoginPage() {
           </div>
 
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Bon retour !</h1>
+          <p className="text-xs text-blue-500 mb-4">LOGIN V2</p>
           <p className="text-gray-500 text-sm mb-8">
             Pas encore de compte ?{' '}
             <Link to="/register" className="text-emerald-600 font-semibold hover:text-emerald-700 cursor-pointer">
