@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => unsubscribe();
   }, []);
-
+  
 const login = async (
   email: string,
   password: string
@@ -83,30 +83,31 @@ const login = async (
   }
 };
 
-  const register = async (
-    email: string,
-    password: string,
-    name: string
-  ): Promise<{ success: boolean; error?: string }> => {
-    try {
-      const result = await createUserWithEmailAndPassword(auth, email, password);
+const register = async (
+  email: string,
+  password: string,
+  name: string
+): Promise<{ success: boolean; error?: string }> => {
+  try {
+    const result = await createUserWithEmailAndPassword(auth, email, password);
 
-      if (auth.currentUser) {
-        await updateProfile(auth.currentUser, {
-          displayName: name,
-        });
-      }
-
-      setStoredPlan(result.user.uid, 'starter');
-
-      return { success: true };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.message || "Erreur lors de l'inscription.",
-      };
+    if (auth.currentUser) {
+      await updateProfile(auth.currentUser, {
+        displayName: name,
+      });
     }
-  };
+
+    setStoredPlan(result.user.uid, 'starter');
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("ERREUR REGISTER FIREBASE :", error);
+    return {
+      success: false,
+      error: error?.code || error?.message || "Erreur lors de l'inscription.",
+    };
+  }
+};
 
   const logout = async () => {
     await signOut(auth);
