@@ -21,23 +21,6 @@ interface InventoryContextType {
 }
 
 const InventoryContext = createContext<InventoryContextType | null>(null);
-const PROPERTIES_KEY = 'inventopro_properties';
-
-function loadAll(): Property[] {
-  try {
-    return JSON.parse(localStorage.getItem(PROPERTIES_KEY) || '[]');
-  } catch {
-    return [];
-  }
-}
-
-function saveAll(all: Property[]) {
-  try {
-    localStorage.setItem(PROPERTIES_KEY, JSON.stringify(all));
-  } catch {
-    // storage full
-  }
-}
 
 export function InventoryProvider({ children }: { children: ReactNode }) {
   const { user, isLoading: authLoading } = useAuth();
@@ -48,30 +31,56 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
   const propertiesRef = useRef<Property[]>([]);
 
   useEffect(() => {
-    // Attendre que l'auth soit résolue avant de charger
-    if (authLoading) return;
+  if (authLoading) return;
 
-    if (user) {
-      const all = loadAll();
-      const userProps = all.filter((p) => p.userId === user.id);
-      propertiesRef.current = userProps;
-      setPropertiesState(userProps);
-    } else {
+  const loadData = async () => {
+    setIsLoading(true);
+
+    try {
+      if (user) {
+        const userProps = await fetchInventoriesByUser(user.id);
+        propertiesRef.current = userProps;
+        setPropertiesState(userProps);
+      } else {
+        propertiesRef.current = [];
+        setPropertiesState([]);
+      }
+    } catch (error) {
+      console.error("Erreur chargement inventaires :", error);
       propertiesRef.current = [];
       setPropertiesState([]);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
-  }, [user, authLoading]);
+  };
+
+  loadData();
+}, [user, authLoading]);
 
   // ✅ persist updates the ref FIRST (sync), then React state (async)
-  const persist = (updated: Property[]) => {
-    if (!user) return;
-    propertiesRef.current = updated; // sync update — no race condition
-    const all = loadAll();
-    const others = all.filter((p) => p.userId !== user.id);
-    saveAll([...others, ...updated]);
-    setPropertiesState([...updated]);
-  };
+ const persist = async (updated: Property[]) => {
+  if (!user) return;
+
+  propertiesRef.current = updated;
+  setPropertiesState([...updated]);
+
+  try {
+    const previousIds = new Set(properties.map((p) => p.id));
+    const updatedIds = new Set(updated.map((p) => p.id));
+
+    for (const property of updated) {
+      await upsertInventory(property);
+    }
+
+    for (const oldProperty of properties) {
+      if (!updatedIds.has(oldProperty.id)) {
+        await deleteInventoryById(oldProperty.id);
+      }
+    }
+  } catch (error) {
+    console.error("Erreur sauvegarde inventaires :", error);
+  }
+};
 
   const createProperty = (data: { name: string; address: string; ownerName: string; type: PropertyType }): Property => {
     const newProp: Property = {
