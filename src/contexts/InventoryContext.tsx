@@ -65,7 +65,6 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
   setPropertiesState([...updated]);
 
   try {
-    const previousIds = new Set(properties.map((p) => p.id));
     const updatedIds = new Set(updated.map((p) => p.id));
 
     for (const property of updated) {
