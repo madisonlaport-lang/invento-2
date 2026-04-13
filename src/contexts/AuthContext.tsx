@@ -75,13 +75,23 @@ const login = async (
     await signInWithEmailAndPassword(auth, email, password);
     return { success: true };
   } catch (error: any) {
-    console.error("ERREUR LOGIN FIREBASE :", error);
-    return {
-      success: false,
-      error: error?.code || error?.message || 'Email ou mot de passe incorrect.',
-    };
+  console.error("ERREUR LOGIN FIREBASE :", error);
+
+  let message = 'Email ou mot de passe incorrect.';
+
+  if (error?.code === 'auth/invalid-credential') {
+    message = 'Email ou mot de passe incorrect.';
+  } else if (error?.code === 'auth/user-disabled') {
+    message = 'Ce compte a été désactivé.';
+  } else if (error?.code === 'auth/too-many-requests') {
+    message = 'Trop de tentatives. Réessaie plus tard.';
   }
-};
+
+  return {
+    success: false,
+    error: message,
+  };
+}
 
 const register = async (
   email: string,
