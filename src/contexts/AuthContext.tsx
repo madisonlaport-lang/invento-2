@@ -75,9 +75,10 @@ const login = async (
     await signInWithEmailAndPassword(auth, email, password);
     return { success: true };
   } catch (error: any) {
+    console.error("ERREUR LOGIN FIREBASE :", error);
     return {
       success: false,
-      error: error.message || 'Email ou mot de passe incorrect.',
+      error: error?.code || error?.message || 'Email ou mot de passe incorrect.',
     };
   }
 };
