@@ -83,32 +83,33 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
 };
 
   const createProperty = (data: { name: string; address: string; ownerName: string; type: PropertyType }): Property => {
-    const newProp: Property = {
-      id: crypto.randomUUID(),
-      userId: user!.id,
-      ...data,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      status: 'draft',
-      rooms: [],
-    };
-    persist([...propertiesRef.current, newProp]);
-    return newProp;
+  const newProp: Property = {
+    id: crypto.randomUUID(),
+    userId: user!.id,
+    ...data,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    status: 'draft',
+    rooms: [],
   };
 
+  void persist([...propertiesRef.current, newProp]);
+  return newProp;
+};
+
   const updateProperty = (id: string, data: Partial<Property>) => {
-    persist(propertiesRef.current.map((p) => (p.id === id ? { ...p, ...data, updatedAt: new Date().toISOString() } : p)));
+    void persist(propertiesRef.current.map((p) => (p.id === id ? { ...p, ...data, updatedAt: new Date().toISOString() } : p)));
   };
 
   const deleteProperty = (id: string) => {
-    persist(propertiesRef.current.filter((p) => p.id !== id));
+    void persist(propertiesRef.current.filter((p) => p.id !== id));
   };
 
   const getProperty = (id: string) => propertiesRef.current.find((p) => p.id === id);
 
   const addRoom = (propertyId: string, room: Omit<Room, 'id' | 'propertyId' | 'items' | 'photos'>): Room => {
     const newRoom: Room = { id: crypto.randomUUID(), propertyId, ...room, items: [], photos: [] };
-    persist(
+    void persist(
       propertiesRef.current.map((p) =>
         p.id === propertyId ? { ...p, rooms: [...p.rooms, newRoom], updatedAt: new Date().toISOString() } : p
       )
@@ -117,7 +118,7 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
   };
 
   const deleteRoom = (propertyId: string, roomId: string) => {
-    persist(
+    void persist(
       propertiesRef.current.map((p) =>
         p.id === propertyId
           ? { ...p, rooms: p.rooms.filter((r) => r.id !== roomId), updatedAt: new Date().toISOString() }
@@ -128,7 +129,7 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
 
   const addItem = (propertyId: string, roomId: string, item: Omit<Item, 'id' | 'roomId' | 'photos'>): Item => {
     const newItem: Item = { id: crypto.randomUUID(), roomId, ...item, photos: [] };
-    persist(
+    void persist(
       propertiesRef.current.map((p) =>
         p.id === propertyId
           ? {
@@ -145,7 +146,7 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
   };
 
   const updateItem = (propertyId: string, roomId: string, itemId: string, data: Partial<Item>) => {
-    persist(
+     void persist(
       propertiesRef.current.map((p) =>
         p.id === propertyId
           ? {
@@ -163,7 +164,7 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
   };
 
   const deleteItem = (propertyId: string, roomId: string, itemId: string) => {
-    persist(
+    void persist(
       propertiesRef.current.map((p) =>
         p.id === propertyId
           ? {
@@ -180,7 +181,7 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
 
   const addPhotoToRoom = (propertyId: string, roomId: string, photoData: Omit<Photo, 'id'>) => {
     const newPhoto: Photo = { id: crypto.randomUUID(), ...photoData };
-    persist(
+    void persist(
       propertiesRef.current.map((p) =>
         p.id === propertyId
           ? {
@@ -197,7 +198,7 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
 
   const addPhotoToItem = (propertyId: string, roomId: string, itemId: string, photoData: Omit<Photo, 'id'>) => {
     const newPhoto: Photo = { id: crypto.randomUUID(), ...photoData };
-    persist(
+    void persist(
       propertiesRef.current.map((p) =>
         p.id === propertyId
           ? {
@@ -220,7 +221,7 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
   };
 
   const markCompleted = (propertyId: string) => {
-    persist(
+    void persist(
       propertiesRef.current.map((p) =>
         p.id === propertyId ? { ...p, status: 'completed', updatedAt: new Date().toISOString() } : p
       )
