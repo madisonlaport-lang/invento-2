@@ -22,7 +22,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-// On garde juste le plan en local temporairement
 const PLAN_KEY_PREFIX = 'inventopro_plan_';
 
 function getStoredPlan(uid: string): PlanType {
@@ -66,82 +65,85 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => unsubscribe();
   }, []);
-  
-const login = async (
-  email: string,
-  password: string
-): Promise<{ success: boolean; error?: string }> => {
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    return { success: true };
-  } catch (error: any) {
-  console.error("ERREUR LOGIN FIREBASE :", error);
 
-  let message = 'Email ou mot de passe incorrect.';
+  const login = async (
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      return { success: true };
+    } catch (error: any) {
+      console.error('ERREUR LOGIN FIREBASE :', error);
 
-  if (error?.code === 'auth/invalid-credential') {
-    message = 'Email ou mot de passe incorrect.';
-  } else if (error?.code === 'auth/user-disabled') {
-    message = 'Ce compte a été désactivé.';
-  } else if (error?.code === 'auth/too-many-requests') {
-    message = 'Trop de tentatives. Réessaie plus tard.';
-  }
+      let message = 'Email ou mot de passe incorrect.';
 
-  return {
-    success: false,
-    error: message,
-  };
-}
+      if (error?.code === 'auth/invalid-credential') {
+        message = 'Email ou mot de passe incorrect.';
+      } else if (error?.code === 'auth/user-disabled') {
+        message = 'Ce compte a été désactivé.';
+      } else if (error?.code === 'auth/too-many-requests') {
+        message = 'Trop de tentatives. Réessaie plus tard.';
+      }
 
-const register = async (
-  email: string,
-  password: string,
-  name: string
-): Promise<{ success: boolean; error?: string }> => {
-  try {
-    const result = await createUserWithEmailAndPassword(auth, email, password);
-
-    if (auth.currentUser) {
-      await updateProfile(auth.currentUser, {
-        displayName: name,
-      });
+      return {
+        success: false,
+        error: message,
+      };
     }
+  };
 
-    setStoredPlan(result.user.uid, 'starter');
+  const register = async (
+    email: string,
+    password: string,
+    name: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const result = await createUserWithEmailAndPassword(auth, email, password);
 
-    return { success: true };
-  } catch (error: any) {
-    console.error("ERREUR REGISTER FIREBASE :", error);
-    return {
-      success: false,
-      error: error?.code || error?.message || "Erreur lors de l'inscription.",
-    };
-  }
-};
+      if (auth.currentUser) {
+        await updateProfile(auth.currentUser, {
+          displayName: name,
+        });
+      }
+
+      setStoredPlan(result.user.uid, 'starter');
+
+      return { success: true };
+    } catch (error: any) {
+      console.error('ERREUR REGISTER FIREBASE :', error);
+
+      return {
+        success: false,
+        error: error?.code || error?.message || "Erreur lors de l'inscription.",
+      };
+    }
+  };
 
   const logout = async () => {
     await signOut(auth);
     setUser(null);
   };
 
- const forgotPassword = async (
-  email: string
-): Promise<{ success: boolean; error?: string }> => {
-  try {
-    await sendPasswordResetEmail(auth, email, {
-      url: "https://kenwa-conciergerie.com/login",
-      handleCodeInApp: false,
-    });
+  const forgotPassword = async (
+    email: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      await sendPasswordResetEmail(auth, email, {
+        url: 'https://kenwa-conciergerie.com/login',
+        handleCodeInApp: false,
+      });
 
-    return { success: true };
-  } catch (error: any) {
-    console.error("ERREUR FORGOT PASSWORD :", error);
-    return {
-      success: false,
-      error: error?.message || "Impossible d'envoyer l'email.",
-    };
-  }
-};
+      return { success: true };
+    } catch (error: any) {
+      console.error('ERREUR FORGOT PASSWORD :', error);
+
+      return {
+        success: false,
+        error: error?.message || "Impossible d'envoyer l'email.",
+      };
+    }
+  };
 
   const updatePlan = (plan: PlanType) => {
     if (!auth.currentUser) return;
