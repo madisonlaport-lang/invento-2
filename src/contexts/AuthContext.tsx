@@ -129,7 +129,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string
   ): Promise<{ success: boolean; error?: string }> => {
     try {
-      await sendPasswordResetEmail(auth, email);
+      await sendPasswordResetEmail(auth, email, {
+        url: "https://kenwa-conciergerie.com/login",
+      });
       return { success: true };
     } catch (error: any) {
       console.error('ERREUR FORGOT PASSWORD :', error);
