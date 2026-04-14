@@ -25,11 +25,9 @@ function App() {
   return (
     <I18nextProvider i18n={i18n}>
       <BrowserRouter basename={__BASE_PATH__}>
-        <AuthProvider>
-          <InventoryProvider>
-            <AppContent /> {/* ✅ ici */}
-          </InventoryProvider>
-        </AuthProvider>
+       <AuthProvider>
+         <AuthWrapper />
+       </AuthProvider>
       </BrowserRouter>
     </I18nextProvider>
   );
