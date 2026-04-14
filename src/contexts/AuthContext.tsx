@@ -67,31 +67,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (
-    email: string,
-    password: string
-  ): Promise<{ success: boolean; error?: string }> => {
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      return { success: true };
-    } catch (error: any) {
-      console.error('ERREUR LOGIN FIREBASE :', error);
+  email: string,
+  password: string
+): Promise<{ success: boolean; error?: string }> => {
+  try {
+    const result = await signInWithEmailAndPassword(auth, email, password);
 
-      let message = 'Email ou mot de passe incorrect.';
+    // 🔥 IMPORTANT → met à jour l'utilisateur immédiatement
+    setUser(mapFirebaseUser(result.user));
 
-      if (error?.code === 'auth/invalid-credential') {
-        message = 'Email ou mot de passe incorrect.';
-      } else if (error?.code === 'auth/user-disabled') {
-        message = 'Ce compte a été désactivé.';
-      } else if (error?.code === 'auth/too-many-requests') {
-        message = 'Trop de tentatives. Réessaie plus tard.';
-      }
+    return { success: true };
+  } catch (error: any) {
+    console.error('ERREUR LOGIN FIREBASE :', error);
 
-      return {
-        success: false,
-        error: message,
-      };
+    let message = 'Email ou mot de passe incorrect.';
+
+    if (error?.code === 'auth/invalid-credential') {
+      message = 'Email ou mot de passe incorrect.';
+    } else if (error?.code === 'auth/user-disabled') {
+      message = 'Ce compte a été désactivé.';
+    } else if (error?.code === 'auth/too-many-requests') {
+      message = 'Trop de tentatives. Réessaie plus tard.';
     }
-  };
+
+    return {
+      success: false,
+      error: message,
+    };
+  }
+};
 
   const register = async (
     email: string,
