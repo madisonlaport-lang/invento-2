@@ -6,10 +6,10 @@ import i18n from "./i18n";
 import { AuthProvider } from "./contexts/AuthContext";
 import { InventoryProvider } from "./contexts/InventoryContext";
 
-function App() {
+// 🔥 Nouveau composant interne
+function AppContent() {
   const { isLoading } = useAuth();
 
-  // ⛔ BLOQUE l'app pendant le chargement Firebase
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -18,13 +18,16 @@ function App() {
     );
   }
 
+  return <AppRoutes />;
+}
+
+function App() {
   return (
-    // ton app normale ici (
     <I18nextProvider i18n={i18n}>
       <BrowserRouter basename={__BASE_PATH__}>
         <AuthProvider>
           <InventoryProvider>
-            <AppRoutes />
+            <AppContent /> {/* ✅ ici */}
           </InventoryProvider>
         </AuthProvider>
       </BrowserRouter>
