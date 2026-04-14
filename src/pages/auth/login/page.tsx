@@ -118,9 +118,9 @@ export default function LoginPage() {
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="block text-sm font-medium text-gray-700">Mot de passe</label>
-                <Link to="/forgot-password" className="text-xs text-emerald-600 hover:text-emerald-700 cursor-pointer">
-                  Mot de passe oublié ?
-                </Link>
+                <span className="text-xs text-gray-400">
+                  Besoin d’aide pour récupérer votre compte ? Contactez-nous.
+                </span>
               </div>
               <div className="relative">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center text-gray-400">
