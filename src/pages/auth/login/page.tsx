@@ -1,9 +1,9 @@
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, user, isLoading } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -11,7 +11,13 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
- const handleSubmit = async (e: FormEvent) => {
+  useEffect(() => {
+  if (!isLoading && user) {
+    navigate('/dashboard');
+  }
+}, [user, isLoading, navigate]);
+
+  const handleSubmit = async (e: FormEvent) => {
   e.preventDefault();
   setError('');
   setLoading(true);
@@ -20,11 +26,7 @@ export default function LoginPage() {
 
   setLoading(false);
 
-  if (result.success) {
-    setTimeout(() => {
-      navigate('/dashboard');
-    }, 100);
-  } else {
+  if (!result.success) {
     setError(result.error || 'Une erreur est survenue.');
   }
 };
