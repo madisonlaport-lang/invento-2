@@ -10,14 +10,8 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-  if (!isLoading && user) {
-    navigate('/dashboard');
-  }
-}, [user, isLoading, navigate]);
-
-  const handleSubmit = async (e: FormEvent) => {
+  
+const handleSubmit = async (e: FormEvent) => {
   e.preventDefault();
   setError('');
   setLoading(true);
@@ -26,11 +20,13 @@ export default function LoginPage() {
 
   setLoading(false);
 
-  if (!result.success) {
+  if (result.success) {
+    // 🔥 FORCE RELOAD (clé du fix)
+    window.location.href = "/dashboard";
+  } else {
     setError(result.error || 'Une erreur est survenue.');
   }
 };
-
   return (
     <div className="min-h-screen flex">
       {/* Left visual */}
