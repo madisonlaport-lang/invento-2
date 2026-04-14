@@ -21,7 +21,9 @@ export default function LoginPage() {
   setLoading(false);
 
   if (result.success) {
-    navigate('/dashboard');
+    setTimeout(() => {
+      navigate('/dashboard');
+    }, 100);
   } else {
     setError(result.error || 'Une erreur est survenue.');
   }
