@@ -1,3 +1,5 @@
+import ConditionsPage from "@/pages/legal/conditions";
+import RefundPage from "@/pages/legal/refund";
 import type { RouteObject } from "react-router-dom";
 import NotFound from "../pages/NotFound";
 import Home from "../pages/home/page";
@@ -37,6 +39,10 @@ const routes: RouteObject[] = [
     path: "/inventory/:id/report",
     element: <ProtectedRoute><ReportPage /></ProtectedRoute>,
   },
+  
+  { path: "/conditions", element: <ConditionsPage /> },
+  { path: "/remboursement", element: <RefundPage /> },
+  
   { path: "*", element: <NotFound /> },
 ];
 
