@@ -32,5 +32,14 @@ function App() {
     </I18nextProvider>
   );
 }
+function AuthWrapper() {
+  const { user } = useAuth();
+
+  return (
+    <InventoryProvider key={user?.id || 'no-user'}>
+      <AppContent />
+    </InventoryProvider>
+  );
+}
 
 export default App;
