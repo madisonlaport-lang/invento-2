@@ -9,15 +9,20 @@ interface Props {
 export default function ProtectedRoute({ children }: Props) {
   const { user, isLoading } = useAuth();
 
-  // Si on charge ET qu'il n'y a pas encore de user connu, on attend silencieusement
-  // (évite le flash blanc / spinner inutile après login)
+  // ✅ On attend proprement
   if (isLoading) {
-    return null;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Chargement...
+      </div>
+    );
   }
 
+  // 🔐 Si pas connecté → login
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
+  // ✅ Sinon on affiche
   return <>{children}</>;
 }
