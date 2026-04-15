@@ -75,6 +75,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // 🔥 IMPORTANT → met à jour l'utilisateur immédiatement
     setUser(mapFirebaseUser(result.user));
+    
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'sign_up', {
+        method: 'email',
+      });
+    }
 
     return { success: true };
   } catch (error: any) {
