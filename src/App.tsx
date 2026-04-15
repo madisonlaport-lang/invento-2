@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react';
 import { useAuth } from '@/contexts/AuthContext';
 import { BrowserRouter } from "react-router-dom";
 import { AppRoutes } from "./router";
