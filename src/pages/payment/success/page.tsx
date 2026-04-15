@@ -3,6 +3,15 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { PlanType } from "@/types";
 
+import { useEffect } from 'react';
+import { trackEvent } from '@/utils/analytics';
+
+useEffect(() => {
+  trackEvent('purchase_success', {
+    source: 'stripe',
+  });
+}, []);
+
 export default function SuccessPage() {
   const [searchParams] = useSearchParams();
   const { updatePlan, user } = useAuth();
