@@ -1,3 +1,4 @@
+import { trackEvent } from '@/utils/analytics';
 import { useParams, Link } from 'react-router-dom';
 import { useRef, useState } from 'react';
 import { useInventory } from '@/contexts/InventoryContext';
@@ -23,6 +24,9 @@ export default function ReportPage() {
   const property = getProperty(id!);
 
   const handleGeneratePdf = async () => {
+    trackEvent('click_download_pdf', {
+      property_type: property.type,
+    });
     const isMobile = window.innerWidth < 768;
 
     if (isMobile && !pendingPdf) {
