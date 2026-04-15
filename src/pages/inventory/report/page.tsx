@@ -17,18 +17,17 @@ export default function ReportPage() {
   const [generating, setGenerating] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [showMobileWarning, setShowMobileWarning] = useState(false);
+  const [pendingPdf, setPendingPdf] = useState(false);
 
   const property = getProperty(id!);
 
   const handleGeneratePdf = async () => {
     const isMobile = window.innerWidth < 768;
 
-    if (isMobile) {
-      const confirmed = window.confirm(
-        "Pour une génération PDF plus fiable, nous recommandons d’utiliser un ordinateur.\n\nSur mobile, le rendu peut être incomplet ou instable.\n\nVoulez-vous continuer quand même ?"
-      );
-
-      if (!confirmed) return;
+    if (isMobile && !pendingPdf) {
+      setShowMobileWarning(true);
+      return;
     }
 
     if (!reportRef.current || !property) return;
@@ -81,6 +80,7 @@ export default function ReportPage() {
       setError('Erreur lors de la génération du PDF. Veuillez réessayer sur ordinateur.');
     } finally {
       setGenerating(false);
+      setPendingPdf(false);
     }
   };
 
@@ -195,6 +195,56 @@ export default function ReportPage() {
           </div>
         </AppLayout>
       </div>
+
+      {showMobileWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 flex items-center justify-center rounded-full bg-amber-100 text-amber-600 flex-shrink-0">
+                <i className="ri-smartphone-line text-xl"></i>
+              </div>
+
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
+                  Génération PDF sur mobile
+                </h3>
+
+                <p className="text-sm text-gray-600 mb-4">
+                  Pour une génération PDF plus fiable, nous recommandons d’utiliser un ordinateur.
+                  Sur mobile, le rendu peut être incomplet ou instable.
+                </p>
+
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowMobileWarning(false);
+                      setPendingPdf(false);
+                    }}
+                    className="flex-1 border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-lg py-2.5 text-sm font-semibold"
+                  >
+                    Retour
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowMobileWarning(false);
+                      setPendingPdf(true);
+                      setTimeout(() => {
+                        handleGeneratePdf();
+                      }, 0);
+                    }}
+                    className="flex-1 bg-gray-900 hover:bg-gray-800 text-white rounded-lg py-2.5 text-sm font-semibold"
+                  >
+                    Continuer quand même
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-4xl mx-auto px-4 pb-16">
         <div ref={reportRef} className="print-page bg-white rounded-xl border border-gray-200 overflow-hidden">
