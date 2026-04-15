@@ -7,7 +7,6 @@ import i18n from "./i18n";
 import { AuthProvider } from "./contexts/AuthContext";
 import { InventoryProvider } from "./contexts/InventoryContext";
 
-// 🔥 Nouveau composant interne
 function AppContent() {
   const { isLoading } = useAuth();
 
@@ -22,17 +21,6 @@ function AppContent() {
   return <AppRoutes />;
 }
 
-function App() {
-  return (
-    <I18nextProvider i18n={i18n}>
-      <BrowserRouter basename={__BASE_PATH__}>
-       <AuthProvider>
-         <AuthWrapper />
-       </AuthProvider>
-      </BrowserRouter>
-    </I18nextProvider>
-  );
-}
 function AuthWrapper() {
   const { user } = useAuth();
 
@@ -40,6 +28,20 @@ function AuthWrapper() {
     <InventoryProvider key={user?.id || 'no-user'}>
       <AppContent />
     </InventoryProvider>
+  );
+}
+
+function App() {
+  return (
+    <I18nextProvider i18n={i18n}>
+      <BrowserRouter basename={__BASE_PATH__}>
+        <AuthProvider>
+          <AuthWrapper />
+        </AuthProvider>
+      </BrowserRouter>
+
+      <Analytics />
+    </I18nextProvider>
   );
 }
 
