@@ -154,7 +154,13 @@ export default function InventoryDetailPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <input ref={photoRef} type="file" accept="image/*" multiple className="hidden" onChange={handleRoomPhoto} />
+                   <input
+                     ref={photoRef}
+                     type="file"
+                     accept="image/*"
+                     capture="environment"
+                     multiple
+                     />
                     <button
                       onClick={() => photoRef.current?.click()}
                       className="flex items-center gap-1.5 text-xs text-gray-600 border border-gray-200 hover:border-emerald-400 hover:text-emerald-600 px-3 py-1.5 rounded-lg cursor-pointer transition-colors whitespace-nowrap"
