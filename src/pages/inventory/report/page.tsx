@@ -21,70 +21,64 @@ export default function ReportPage() {
   const property = getProperty(id!);
 
   const handleGeneratePdf = async () => {
-  const isMobile = window.innerWidth < 768;
+    const isMobile = window.innerWidth < 768;
 
-  if (isMobile) {
-    const confirmed = window.confirm(
-      "Pour une génération PDF plus fiable, nous recommandons d’utiliser un ordinateur.\n\nSur mobile, le rendu peut être incomplet ou instable.\n\nVoulez-vous continuer quand même ?"
-    );
+    if (isMobile) {
+      const confirmed = window.confirm(
+        "Pour une génération PDF plus fiable, nous recommandons d’utiliser un ordinateur.\n\nSur mobile, le rendu peut être incomplet ou instable.\n\nVoulez-vous continuer quand même ?"
+      );
 
-    if (!confirmed) return;
-  }
+      if (!confirmed) return;
+    }
+
     if (!reportRef.current || !property) return;
+
     setGenerating(true);
     setError('');
+
     try {
       const element = reportRef.current;
+
       const canvas = await html2canvas(element, {
-        scale: 1.5, // 🔥 plus léger mobile
+        scale: 1.5,
         useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
       });
-      const imgData = canvas.toDataURL('image/jpeg', 0.7); // 🔥 compression
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.7);
       const pdf = new jsPDF('p', 'mm', 'a4');
-      
+
       const imgWidth = 210;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
+
       let heightLeft = imgHeight;
       let position = 0;
+
       pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
       heightLeft -= 297;
+
       while (heightLeft > 0) {
         position -= 297;
         pdf.addPage();
         pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
         heightLeft -= 297;
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * pageWidth) / canvas.width;
-
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft > 0) {
-        position -= pageHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
       }
 
-      const filename = `inventaire-${property.name.toLowerCase().replace(/\s+/g, '-')}-${new Date().toLocaleDateString('fr-FR').replace(/\//g, '-')}.pdf`;
+      const filename = `inventaire-${property.name
+        .toLowerCase()
+        .replace(/\s+/g, '-')}-${new Date()
+        .toLocaleDateString('fr-FR')
+        .replace(/\//g, '-')}.pdf`;
+
       pdf.save(filename);
 
       setSuccess(true);
       setTimeout(() => setSuccess(false), 4000);
     } catch (err) {
       console.error('Erreur génération PDF:', err);
-      setError('Erreur lors de la génération du PDF. Veuillez réessayer.');
+      setError('Erreur lors de la génération du PDF. Veuillez réessayer sur ordinateur.');
     } finally {
       setGenerating(false);
     }
@@ -110,8 +104,14 @@ export default function ReportPage() {
   }
 
   const totalItems = property.rooms.reduce((s, r) => s + r.items.length, 0);
-  const totalPhotos = property.rooms.reduce((s, r) => s + r.photos.length + r.items.reduce((ss, i) => ss + i.photos.length, 0), 0);
-  const totalValue = property.rooms.reduce((s, r) => s + r.items.reduce((ss, i) => ss + (i.estimatedValue || 0), 0), 0);
+  const totalPhotos = property.rooms.reduce(
+    (s, r) => s + r.photos.length + r.items.reduce((ss, i) => ss + i.photos.length, 0),
+    0
+  );
+  const totalValue = property.rooms.reduce(
+    (s, r) => s + r.items.reduce((ss, i) => ss + (i.estimatedValue || 0), 0),
+    0
+  );
   const now = new Date().toISOString();
 
   return (
@@ -124,7 +124,6 @@ export default function ReportPage() {
         }
       `}</style>
 
-      {/* Toolbar */}
       <div className="no-print">
         <AppLayout>
           <div className="max-w-4xl mx-auto px-4 py-6">
@@ -141,6 +140,7 @@ export default function ReportPage() {
                   <p className="text-xs text-gray-500">{property.name}</p>
                 </div>
               </div>
+
               <div className="flex items-center gap-2">
                 <button
                   onClick={handlePrint}
@@ -149,8 +149,9 @@ export default function ReportPage() {
                   <i className="ri-printer-line"></i>
                   Imprimer
                 </button>
+
                 <button
-                  onClick={handleGeneratePDF}
+                  onClick={handleGeneratePdf}
                   disabled={generating}
                   className={`inline-flex items-center gap-2 text-white text-sm font-semibold px-5 py-2.5 rounded-lg cursor-pointer transition-colors whitespace-nowrap ${
                     success
@@ -195,10 +196,8 @@ export default function ReportPage() {
         </AppLayout>
       </div>
 
-      {/* Report content (captured by html2canvas) */}
       <div className="max-w-4xl mx-auto px-4 pb-16">
         <div ref={reportRef} className="print-page bg-white rounded-xl border border-gray-200 overflow-hidden">
-          {/* Header */}
           <div className="bg-gray-900 text-white px-8 py-8">
             <div className="flex items-start justify-between">
               <div>
@@ -217,16 +216,18 @@ export default function ReportPage() {
                 <h2 className="text-2xl font-bold mb-1">Rapport d&apos;inventaire</h2>
                 <p className="text-white/70 text-sm">{PROPERTY_TYPE_LABELS[property.type]}</p>
               </div>
+
               <div className="text-right">
                 <p className="text-white/60 text-xs mb-1">Généré le</p>
                 <p className="font-semibold text-sm">{formatDate(now)}</p>
                 <p className="text-white/60 text-xs mt-3 mb-1">Référence</p>
-                <p className="font-mono text-xs text-emerald-400">{property.id.split('-')[0].toUpperCase()}</p>
+                <p className="font-mono text-xs text-emerald-400">
+                  {property.id.split('-')[0].toUpperCase()}
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Property info */}
           <div className="px-8 py-6 bg-gray-50 border-b border-gray-200">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -244,7 +245,6 @@ export default function ReportPage() {
             </div>
           </div>
 
-          {/* Summary */}
           <div className="px-8 py-5 border-b border-gray-200">
             <div className="grid grid-cols-4 gap-4 text-center">
               {[
@@ -266,12 +266,12 @@ export default function ReportPage() {
             </div>
           </div>
 
-          {/* Rooms */}
           <div className="px-8 py-6">
             <h3 className="text-lg font-bold text-gray-900 mb-5 flex items-center gap-2">
               <i className="ri-layout-3-line text-emerald-600"></i>
               Inventaire détaillé
             </h3>
+
             <div className="flex flex-col gap-6">
               {property.rooms.map((room) => (
                 <div key={room.id} className="border border-gray-200 rounded-xl overflow-hidden">
@@ -290,13 +290,22 @@ export default function ReportPage() {
                       <div className="flex items-center gap-1.5 mb-2">
                         <i className="ri-camera-line text-amber-500 text-xs"></i>
                         <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Vue de la pièce</p>
-                        <span className="text-xs text-gray-400">({room.photos.length} photo{room.photos.length > 1 ? 's' : ''})</span>
+                        <span className="text-xs text-gray-400">
+                          ({room.photos.length} photo{room.photos.length > 1 ? 's' : ''})
+                        </span>
                       </div>
+
                       <div className="flex gap-3 overflow-x-auto">
                         {room.photos.map((ph) => (
                           <div key={ph.id} className="flex-shrink-0">
-                            <img src={ph.url} alt="vue de la pièce" className="w-32 h-24 object-cover rounded-lg border border-gray-200" />
-                            <p className="text-xs text-gray-400 mt-1 text-center">{formatDate(ph.takenAt).split(' à')[0]}</p>
+                            <img
+                              src={ph.url}
+                              alt="vue de la pièce"
+                              className="w-32 h-24 object-cover rounded-lg border border-gray-200"
+                            />
+                            <p className="text-xs text-gray-400 mt-1 text-center">
+                              {formatDate(ph.takenAt).split(' à')[0]}
+                            </p>
                           </div>
                         ))}
                       </div>
@@ -304,17 +313,28 @@ export default function ReportPage() {
                   )}
 
                   {room.items.length === 0 ? (
-                    <p className="text-xs text-gray-400 italic px-4 py-3">Aucun objet inventorié dans cette pièce.</p>
+                    <p className="text-xs text-gray-400 italic px-4 py-3">
+                      Aucun objet inventorié dans cette pièce.
+                    </p>
                   ) : (
                     <table className="w-full">
                       <thead>
                         <tr className="bg-gray-50">
-                          <th className="text-left text-xs font-bold text-gray-500 uppercase tracking-wider px-4 py-2.5">Objet</th>
-                          <th className="text-left text-xs font-bold text-gray-500 uppercase tracking-wider px-4 py-2.5">État</th>
-                          <th className="text-left text-xs font-bold text-gray-500 uppercase tracking-wider px-4 py-2.5 hidden md:table-cell">Description</th>
-                          <th className="text-right text-xs font-bold text-gray-500 uppercase tracking-wider px-4 py-2.5">Valeur</th>
+                          <th className="text-left text-xs font-bold text-gray-500 uppercase tracking-wider px-4 py-2.5">
+                            Objet
+                          </th>
+                          <th className="text-left text-xs font-bold text-gray-500 uppercase tracking-wider px-4 py-2.5">
+                            État
+                          </th>
+                          <th className="text-left text-xs font-bold text-gray-500 uppercase tracking-wider px-4 py-2.5 hidden md:table-cell">
+                            Description
+                          </th>
+                          <th className="text-right text-xs font-bold text-gray-500 uppercase tracking-wider px-4 py-2.5">
+                            Valeur
+                          </th>
                         </tr>
                       </thead>
+
                       <tbody className="divide-y divide-gray-100">
                         {room.items.map((item) => (
                           <tr key={item.id}>
@@ -322,9 +342,15 @@ export default function ReportPage() {
                               <div className="flex items-center gap-3">
                                 {item.photos.length > 0 ? (
                                   <div className="flex-shrink-0">
-                                    <img src={item.photos[0].url} alt={item.name} className="w-14 h-14 object-cover rounded-lg border border-gray-200" />
+                                    <img
+                                      src={item.photos[0].url}
+                                      alt={item.name}
+                                      className="w-14 h-14 object-cover rounded-lg border border-gray-200"
+                                    />
                                     {item.photos.length > 1 && (
-                                      <p className="text-xs text-gray-400 text-center mt-0.5">+{item.photos.length - 1}</p>
+                                      <p className="text-xs text-gray-400 text-center mt-0.5">
+                                        +{item.photos.length - 1}
+                                      </p>
                                     )}
                                   </div>
                                 ) : (
@@ -335,14 +361,19 @@ export default function ReportPage() {
                                 <span className="text-sm font-medium text-gray-900">{item.name}</span>
                               </div>
                             </td>
+
                             <td className="px-4 py-3">
-                              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${CONDITION_COLORS[item.condition]}`}>
+                              <span
+                                className={`text-xs font-semibold px-2 py-0.5 rounded-full ${CONDITION_COLORS[item.condition]}`}
+                              >
                                 {CONDITION_LABELS[item.condition]}
                               </span>
                             </td>
+
                             <td className="px-4 py-3 hidden md:table-cell">
                               <span className="text-xs text-gray-500">{item.description || '—'}</span>
                             </td>
+
                             <td className="px-4 py-3 text-right">
                               <span className="text-sm font-medium text-gray-700">
                                 {item.estimatedValue ? `${item.estimatedValue}€` : '—'}
@@ -357,12 +388,13 @@ export default function ReportPage() {
               ))}
 
               {property.rooms.length === 0 && (
-                <p className="text-sm text-gray-400 italic text-center py-8">Aucune pièce dans cet inventaire.</p>
+                <p className="text-sm text-gray-400 italic text-center py-8">
+                  Aucune pièce dans cet inventaire.
+                </p>
               )}
             </div>
           </div>
 
-          {/* Signatures */}
           <div className="px-8 py-6 border-t border-gray-200 bg-gray-50">
             <h3 className="font-bold text-gray-900 mb-4">Signatures</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -371,13 +403,14 @@ export default function ReportPage() {
                   <p className="text-sm font-semibold text-gray-700 mb-1">{label}</p>
                   <p className="text-xs text-gray-400 mb-4">Nom, date et signature</p>
                   <div className="h-20 border-b-2 border-dashed border-gray-300" />
-                  <p className="text-xs text-gray-400 mt-2">Lu et approuvé — {formatDate(now).split(' à')[0]}</p>
+                  <p className="text-xs text-gray-400 mt-2">
+                    Lu et approuvé — {formatDate(now).split(' à')[0]}
+                  </p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Footer */}
           <div className="px-8 py-4 bg-gray-900 text-center">
             <p className="text-xs text-white/50">
               Document généré par InventoPro · {formatDate(now)} · Ce document constitue un inventaire contradictoire.
