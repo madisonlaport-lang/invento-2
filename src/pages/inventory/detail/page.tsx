@@ -160,6 +160,8 @@ export default function InventoryDetailPage() {
                      accept="image/*"
                      capture="environment"
                      multiple
+                     className="hidden"
+                     onChange={handleRoomPhoto}
                      />
                     <button
                       onClick={() => photoRef.current?.click()}
