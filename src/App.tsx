@@ -1,10 +1,32 @@
+import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, useLocation } from "react-router-dom";
 import { AppRoutes } from "./router";
 import { I18nextProvider } from "react-i18next";
 import i18n from "./i18n";
 import { AuthProvider } from "./contexts/AuthContext";
 import { InventoryProvider } from "./contexts/InventoryContext";
+
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+  }
+}
+
+function PageTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const gaId = import.meta.env.VITE_GA_ID;
+    if (!gaId || !window.gtag) return;
+
+    window.gtag('config', gaId, {
+      page_path: location.pathname + location.search,
+    });
+  }, [location]);
+
+  return null;
+}
 
 function AppContent() {
   const { isLoading } = useAuth();
@@ -17,7 +39,12 @@ function AppContent() {
     );
   }
 
-  return <AppRoutes />;
+  return (
+    <>
+      <PageTracker />
+      <AppRoutes />
+    </>
+  );
 }
 
 function AuthWrapper() {
@@ -38,7 +65,6 @@ function App() {
           <AuthWrapper />
         </AuthProvider>
       </BrowserRouter>
-  
     </I18nextProvider>
   );
 }
