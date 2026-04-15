@@ -20,7 +20,16 @@ export default function ReportPage() {
 
   const property = getProperty(id!);
 
-  const handleGeneratePDF = async () => {
+  const handleGeneratePdf = async () => {
+  const isMobile = window.innerWidth < 768;
+
+  if (isMobile) {
+    const confirmed = window.confirm(
+      "Pour une génération PDF plus fiable, nous recommandons d’utiliser un ordinateur.\n\nSur mobile, le rendu peut être incomplet ou instable.\n\nVoulez-vous continuer quand même ?"
+    );
+
+    if (!confirmed) return;
+  }
     if (!reportRef.current || !property) return;
     setGenerating(true);
     setError('');
