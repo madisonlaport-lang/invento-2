@@ -36,11 +36,24 @@ export default function ReportPage() {
     try {
       const element = reportRef.current;
       const canvas = await html2canvas(element, {
-        scale: 2,
+        scale: 1.5, // 🔥 plus léger mobile
         useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        logging: false,
+      });
+      const imgData = canvas.toDataURL('image/jpeg', 0.7); // 🔥 compression
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      const imgWidth = 210;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      let heightLeft = imgHeight;
+      let position = 0;
+      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+      heightLeft -= 297;
+      while (heightLeft > 0) {
+        position -= 297;
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+        heightLeft -= 297;
       });
 
       const imgData = canvas.toDataURL('image/png');
