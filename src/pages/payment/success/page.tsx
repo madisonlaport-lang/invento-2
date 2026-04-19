@@ -4,11 +4,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { PlanType } from "@/types";
 
 import { trackEvent } from '@/utils/analytics';
-
-useEffect(() => {
-  trackEvent('purchase_success', {
-    source: 'stripe',
-  });
 }, []);
 
 export default function SuccessPage() {
