@@ -4,7 +4,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { PlanType } from "@/types";
 
 import { trackEvent } from '@/utils/analytics';
-}, []);
 
 export default function SuccessPage() {
   const [searchParams] = useSearchParams();
