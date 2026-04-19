@@ -21,6 +21,7 @@ export default function SuccessPage() {
     } else if (user) {
       // Fallback : si déjà connecté et pas de pending_plan, on active pro par défaut
       setActivated(true);
+      
       useEffect(() => {
         const pendingPlan = localStorage.getItem("pending_plan") as PlanType | null;
         
