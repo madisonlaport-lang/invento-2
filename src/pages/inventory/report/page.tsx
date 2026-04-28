@@ -419,6 +419,9 @@ export default function ReportPage() {
                                       alt={item.name}
                                       className="w-14 h-14 object-cover rounded-lg border border-gray-200"
                                     />
+                                    <p className="text-[10px] text-gray-400 text-center mt-0.5">
+                                      📸 {formatDate(item.photos[0].takenAt)}
+                                    </p>
                                     {item.photos.length > 1 && (
                                       <p className="text-xs text-gray-400 text-center mt-0.5">
                                         +{item.photos.length - 1}
