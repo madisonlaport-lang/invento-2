@@ -456,7 +456,12 @@ export default function ReportPage() {
                 <div key={label} className="bg-white border border-gray-200 rounded-xl p-4">
                   <p className="text-sm font-semibold text-gray-700 mb-1">{label}</p>
                   <p className="text-xs text-gray-400 mb-4">Nom, date et signature</p>
-                  <div className="h-20 border-b-2 border-dashed border-gray-300" />
+                  <div
+                    onClick={() => openSignature("owner")}
+                    className="h-20 border-b-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 flex items-center justify-center"
+                    >
+                     <span className="text-xs text-gray-400">Cliquer pour signer</span>
+                  </div>
                   <p className="text-xs text-gray-400 mt-2">
                     Lu et approuvé — {formatDate(now).split(' à')[0]}
                   </p>
