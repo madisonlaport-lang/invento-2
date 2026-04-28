@@ -108,6 +108,15 @@ export interface Property {
   updatedAt: string;
   status: 'draft' | 'completed';
   rooms: Room[];
+  
+  signatures?: {
+    owner?: string;
+    tenant?: string;
+    ownerSignedAt?: string;
+    tenantSignedAt?: string;
+    ownerSignedBy?: string;
+    tenantSignedBy?: string;
+};
 }
 
 export const DEFAULT_ROOMS: Array<{ name: string; icon: string }> = [
