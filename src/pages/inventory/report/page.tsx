@@ -1,3 +1,4 @@
+import SignaturePad from '@/components/feature/SignaturePad';
 import { trackEvent } from '@/utils/analytics';
 import { useParams, Link } from 'react-router-dom';
 import { useRef, useState } from 'react';
@@ -11,7 +12,7 @@ import html2canvas from 'html2canvas';
 
 export default function ReportPage() {
   const { id } = useParams<{ id: string }>();
-  const { getProperty } = useInventory();
+  const { getProperty, updateProperty } = useInventory();
   const { user } = useAuth();
   const reportRef = useRef<HTMLDivElement>(null);
 
