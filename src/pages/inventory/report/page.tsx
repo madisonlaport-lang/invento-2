@@ -532,6 +532,15 @@ export default function ReportPage() {
           </div>
         </div>
       </div>
+      {signRole && (
+      <SignaturePad
+        onClose={() => setSignRole(null)}
+        onSave={(dataUrl: string) => {
+          saveSignature(signRole, dataUrl);
+          setSignRole(null);
+        }}
+        />
+      )}
     </>
   );
 }
