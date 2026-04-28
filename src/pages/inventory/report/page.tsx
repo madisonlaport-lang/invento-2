@@ -26,6 +26,21 @@ export default function ReportPage() {
 
   const property = getProperty(id!);
 
+  const saveSignature = (role: 'owner' | 'tenant', dataUrl: string) => {
+  if (!property || !user) return;
+
+  const now = new Date().toISOString();
+
+  updateProperty(property.id, {
+    signatures: {
+      ...property.signatures,
+      [role]: dataUrl,
+      [`${role}SignedAt`]: now,
+      [`${role}SignedBy`]: user.email,
+    },
+  });
+};
+
   const handleGeneratePdf = async () => {
     trackEvent('click_download_pdf', {
       property_type: property.type,
