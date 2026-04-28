@@ -26,17 +26,21 @@ export default function ReportPage() {
 
   const property = getProperty(id!);
 
-  const saveSignature = (role: 'owner' | 'tenant', dataUrl: string) => {
-  if (!property || !user) return;
-
-  const now = new Date().toISOString();
+  const saveSignature = (
+    role: 'owner' | 'tenant',
+    data: { signature: string; name: string; email: string }
+  ) => {
+    if (!property) return;
+    
+    const now = new Date().toISOString();
 
   updateProperty(property.id, {
     signatures: {
       ...property.signatures,
-      [role]: dataUrl,
+      [role]: data.signature,
       [`${role}SignedAt`]: now,
-      [`${role}SignedBy`]: user.email,
+      [`${role}SignerName`]: data.name,
+      [`${role}SignerEmail`]: data.email,
     },
   });
 };
