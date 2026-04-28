@@ -22,6 +22,8 @@ export default function ReportPage() {
   const [showMobileWarning, setShowMobileWarning] = useState(false);
   const [pendingPdf, setPendingPdf] = useState(false);
 
+  const [signRole, setSignRole] = useState<'owner' | 'tenant' | null>(null);
+
   const property = getProperty(id!);
 
   const handleGeneratePdf = async () => {
