@@ -469,12 +469,9 @@ export default function ReportPage() {
 
           <div className="px-8 py-6 border-t border-gray-200 bg-gray-50">
             <h3 className="font-bold text-gray-900 mb-4">Signatures</h3>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="px-8 py-6 border-t border-gray-200 bg-gray-50">
-                <h3 className="font-bold text-gray-900 mb-4">Signatures</h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {[
+              {[
       { role: 'owner' as const, label: 'Propriétaire / Mandataire' },
       { role: 'tenant' as const, label: 'Locataire / Preneur' },
     ].map(({ role, label }) => {
@@ -498,9 +495,14 @@ export default function ReportPage() {
             )}
           </div>
 
-          {signedAt && (
+          {signedAt ? (
             <p className="text-xs text-gray-400 mt-2">
-              Signé le {formatDate(signedAt)}{signedBy ? ` par ${signedBy}` : ''}
+              Signé le {formatDate(signedAt)}
+              {signedBy ? ` par ${signedBy}` : ''}
+            </p>
+          ) : (
+            <p className="text-xs text-gray-400 mt-2">
+              Lu et approuvé — {formatDate(now).split(' à')[0]}
             </p>
           )}
         </div>
@@ -508,23 +510,6 @@ export default function ReportPage() {
     })}
   </div>
 </div>
-                <div key={label} className="bg-white border border-gray-200 rounded-xl p-4">
-                  <p className="text-sm font-semibold text-gray-700 mb-1">{label}</p>
-                  <p className="text-xs text-gray-400 mb-4">Nom, date et signature</p>
-                  <div
-                    onClick={() => openSignature("owner")}
-                    className="h-20 border-b-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 flex items-center justify-center"
-                    >
-                     <span className="text-xs text-gray-400">Cliquer pour signer</span>
-                  </div>
-                  <p className="text-xs text-gray-400 mt-2">
-                    Lu et approuvé — {formatDate(now).split(' à')[0]}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
           <div className="px-8 py-4 bg-gray-900 text-center">
             <p className="text-xs text-white/50">
               Document généré par InventoPro · {formatDate(now)} · Ce document constitue un inventaire contradictoire.
