@@ -112,11 +112,18 @@ export interface Property {
   signatures?: {
     owner?: string;
     tenant?: string;
+    
     ownerSignedAt?: string;
     tenantSignedAt?: string;
+    
     ownerSignedBy?: string;
     tenantSignedBy?: string;
-};
+    
+    ownerSignerName?: string;
+    tenantSignerName?: string;
+    ownerSignerEmail?: string;
+    tenantSignerEmail?: string;
+  };
 }
 
 export const DEFAULT_ROOMS: Array<{ name: string; icon: string }> = [
