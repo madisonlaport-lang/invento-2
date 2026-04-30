@@ -512,7 +512,7 @@ export default function ReportPage() {
           ) : (
           <p className="text-xs text-gray-400 mt-2">
             Lu et approuvé — {formatDate(now).split(' à')[0]}
-          </>
+          </p>
         )}
         </div>
       );
