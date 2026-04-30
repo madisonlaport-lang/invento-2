@@ -57,6 +57,21 @@ export default function InventoryDetailPage() {
     setAddRoomName('');
     setShowAddRoom(false);
   };
+  <select
+  value={item.exitStatus || ''}
+  onChange={(e) =>
+    updateExitItem(property.id, room.id, item.id, {
+      exitStatus: e.target.value,
+      exitCheckedAt: new Date().toISOString(),
+    })
+  }
+>
+  <option value="">-- État sortie --</option>
+  <option value="unchanged">Inchangé</option>
+  <option value="damaged">Abîmé</option>
+  <option value="missing">Manquant</option>
+  <option value="replace">À remplacer</option>
+</select>
 
   const totalItems = property.rooms.reduce((s, r) => s + r.items.length, 0);
 
