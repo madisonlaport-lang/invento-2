@@ -141,3 +141,9 @@ export const DEFAULT_ROOMS: Array<{ name: string; icon: string }> = [
   { name: 'Garage', icon: 'ri-parking-line' },
   { name: 'Jardin / Terrasse', icon: 'ri-plant-line' },
 ];
+export const EXIT_STATUS_LABELS = {
+  unchanged: 'Inchangé',
+  damaged: 'Abîmé',
+  missing: 'Manquant',
+  replace: 'À remplacer',
+};
