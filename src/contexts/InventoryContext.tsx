@@ -256,3 +256,24 @@ export function useInventory() {
   if (!ctx) throw new Error('useInventory must be used within InventoryProvider');
   return ctx;
 }
+const updateExitItem = (propertyId, roomId, itemId, data) => {
+  setProperties((prev) =>
+    prev.map((p) =>
+      p.id !== propertyId
+        ? p
+        : {
+            ...p,
+            rooms: p.rooms.map((r) =>
+              r.id !== roomId
+                ? r
+                : {
+                    ...r,
+                    items: r.items.map((i) =>
+                      i.id !== itemId ? i : { ...i, ...data }
+                    ),
+                  }
+            ),
+          }
+    )
+  );
+};
