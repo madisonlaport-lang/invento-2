@@ -484,7 +484,8 @@ export default function ReportPage() {
     ].map(({ role, label }) => {
       const signature = property.signatures?.[role];
       const signedAt = property.signatures?.[`${role}SignedAt`];
-      const signedBy = property.signatures?.[`${role}SignedBy`];
+      const signerName = property.signatures?.[`${role}SignerName`];
+      const signerEmail = property.signatures?.[`${role}SignerEmail`];
 
       return (
         <div key={role} className="bg-white border border-gray-200 rounded-xl p-4">
