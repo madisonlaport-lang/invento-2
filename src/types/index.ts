@@ -77,6 +77,10 @@ export interface Item {
   condition: ItemCondition;
   estimatedValue?: number;
   photos: Photo[];
+  exitStatus?: 'unchanged' | 'damaged' | 'missing' | 'replace';
+  exitComment?: string;
+  exitPhotos?: Photo[];
+  exitCheckedAt?: string;
 }
 
 export interface Room {
