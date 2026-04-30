@@ -506,13 +506,14 @@ export default function ReportPage() {
           {signedAt ? (
             <p className="text-xs text-gray-400 mt-2">
               Signé le {formatDate(signedAt)}
-              {signedBy ? ` par ${signedBy}` : ''}
+              {signerName ? ` par ${signerName}` : ''}
+              {signerEmail ? ` (${signerEmail})` : ''}
             </p>
           ) : (
-            <p className="text-xs text-gray-400 mt-2">
-              Lu et approuvé — {formatDate(now).split(' à')[0]}
-            </p>
-          )}
+          <p className="text-xs text-gray-400 mt-2">
+            Lu et approuvé — {formatDate(now).split(' à')[0]}
+          </>
+        )}
         </div>
       );
     })}
